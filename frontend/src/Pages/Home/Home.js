@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import Globe from "react-globe.gl";
+import Tabledesign from "./Table";
 
 function Home() {
   const [data, setdata] = useState([]);
   const [arcdata, setarcdata] = useState([]);
   const [point_change, setPointChange] = useState(null);
+  const [rowsdata,setrowsdata]=useState([]);
 
   const onGlobeClick = ({ lat, lng }, event) => {
     if (point_change) {
@@ -16,6 +18,17 @@ function Home() {
         }
         return point;
       });
+   
+      const new_rowpoints = rowsdata.map((point) => {
+        if (point_change.id === point.id) {
+          point.latitude = lat;
+          point.longitude = lng;
+          return point;
+        }
+        return point;
+      });
+
+
       let arcs = [];
       for (let i = 0; i < arcdata.length; i++) {
         if (arcdata[i].startpt.id === point_change.id) {
@@ -39,6 +52,8 @@ function Home() {
       setdata(new_points);
       setarcdata(arcs);
       setPointChange(null);
+      setrowsdata(new_rowpoints);
+     
       return;
     }
     const new_point = {
@@ -50,6 +65,14 @@ function Home() {
       radius: 1.0,
       name: data.length + "",
     };
+    setrowsdata((prev) => [
+      ...prev,
+      { waypoints:new_point.name,
+        longitude:new_point.lng,
+        latitude:new_point.lat,
+        waypointsid:new_point.lat + new_point.lng + "",
+        },
+    ]);
     setdata((prev) => [...prev, new_point]);
     if (data.length >= 1) {
       setarcdata((prev) => [
@@ -66,11 +89,19 @@ function Home() {
         },
       ]);
     }
+
+  console.log(data);
+
+
   };
   const onPointClick = (point, event) => {
     setPointChange(point);
   };
   return (
+    
+    
+      <div className="globe">
+        
     <Globe
       globeImageUrl="//unpkg.com/three-globe/example/img/earth-day.jpg"
       bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
@@ -83,6 +114,13 @@ function Home() {
       pointColor={() => "orange"}
       pointRadius={1}
     />
+   
+  <Tabledesign rowsdata={rowsdata}/>
+   
+
+
+</div>
+    
   );
 }
 
